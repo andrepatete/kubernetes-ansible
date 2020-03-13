@@ -327,31 +327,26 @@ kubectl taint nodes --all node-role.kubernetes.io/master-
 ## References
 
 Setup GlusterFS
-    https://stato.blog.br/wordpress/replicacao-de-dados-com-glusterfs/
+ *     https://stato.blog.br/wordpress/ 
+ * replicacao-de-dados-com-glusterfs/
 
 Setup load balancer (keepalived)
-    https://medium.com/velotio-perspectives/demystifying-high-availability-in-kubernetes-using-kubeadm-3d83ed8c458b
+ *     https://medium.com/velotio-perspectives/demystifying-high-availability-in-kubernetes-using-kubeadm-3d83ed8c458b
 
 Installing kubeadm 
-    https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+ *     https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
 
 Init Cluster HA
-    https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/   
+ *     https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/   
 
 Installing kubectl
-    https://kubernetes.io/docs/tasks/tools/install-kubectl/
+ *     https://kubernetes.io/docs/tasks/tools/install-kubectl/
 
 Plug-in CNI 
-    https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#pod-network
+ *     https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#pod-network
 
 
 
-Roadmap
- Review configure firewall /play/install-system-utilities.yaml
- Review GlusterFS
-    Creating Pool and Creating the volumes /play/glusterfs/3-configure_glusterfs_volumes.yaml
- Review README.md
- Add VMs in cluster
 
 # Roadmaps
 
