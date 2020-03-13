@@ -1,0 +1,19 @@
+---
+- hosts: masters
+  become: yes
+
+  vars_files:
+    - ../../env_variables.yml
+    
+  tasks:
+
+# Install Keepalived 
+    - name: install Keepalived
+      yum:
+        name: keepalived
+        state: latest
+
+    - name: Cppy check script 
+      template:
+        src=conf/check_apiserver.sh
+        dest=/etc/keepalived/check_apiserver.sh mode=0755

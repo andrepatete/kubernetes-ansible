@@ -1,0 +1,50 @@
+---
+- hosts: master1
+  vars_files:
+    - ../../env_variables.yml
+  tasks:
+  - name: Pulling images required for setting up a Kubernetes cluster
+    shell: kubeadm config images pull
+
+  - name: Check if kubernetes is already started
+    shell: |
+      ss -puntas | grep 6443 > /dev/null 2>&1;
+      STATUS=$?
+      echo ${STATUS}
+    register: kubestatus
+
+  - name: Initializing Kubernetes cluster
+    shell: kubeadm init --control-plane-endpoint "{{LOAD_BALANCER_ADDRESS}}:{{LOAD_BALANCER_PORT}}" --upload-certs
+    register: output
+    when: kubestatus.stdout == "1"
+
+  - name: Generate join command
+    shell: kubeadm token create --print-join-command
+    register: join_command
+
+  - name: Copy join command to local file
+    local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
+
+  - name: Generate cert masters
+    shell: kubeadm init phase upload-certs --upload-certs | tail -1
+    register: cert_masters
+
+  - name: Copy cert masters to local file
+    local_action: copy content="{{ cert_masters.stdout_lines[0] }}" dest="./cert_masters"
+
+  - name: Check if $HOME/.kube exist
+    shell: |
+      ls $HOME/.kube > /dev/null 2>&1;
+      STATUS=$?
+      echo ${STATUS}
+    register: contentstatus
+
+  - name: Copying required files
+    shell: |
+     mkdir -p $HOME/.kube
+     sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+     sudo chown $(id -u):$(id -g) $HOME/.kube/config
+    when: contentstatus.stdout == "2"
+
+  - name: Install Network Add-on
+    shell: kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"

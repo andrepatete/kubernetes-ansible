@@ -1,0 +1,16 @@
+---
+- hosts: agents
+  vars_files:
+    - ../../env_variables.yml
+  tasks:
+  
+  - name: Copy the join command to server location
+    copy: src=join-command dest=/tmp/join-command.sh mode=0777
+
+  - name: Join the slaves to cluster
+    command: sh /tmp/join-command.sh
+
+  - name: Clean join command file
+    file:
+      state: absent
+      path: "/tmp/join-command.sh"

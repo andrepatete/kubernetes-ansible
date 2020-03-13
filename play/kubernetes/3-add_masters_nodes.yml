@@ -1,0 +1,32 @@
+---
+- hosts: masters_extras
+  vars_files:
+    - ../../env_variables.yml
+  tasks:
+  
+  - name: Copy the join command to server location
+    copy: src=join-command dest=/tmp/join-command mode=0700
+
+  - name: Copy the join command to server location
+    copy: src=cert_masters dest=/tmp/cert_masters mode=0700
+
+  - name: Join the extra masters to cluster
+    shell: | 
+     commandjoin=$(cat /tmp/join-command)
+     parametercert="--control-plane --certificate-key "
+     mastercert=$(cat /tmp/cert_masters)
+     $commandjoin$parametercert$mastercert
+
+  - name: Check if $HOME/.kube exist
+    shell: |
+      ls $HOME/.kube > /dev/null 2>&1;
+      STATUS=$?
+      echo ${STATUS}
+    register: contentstatus
+
+  - name: Copying required files
+    shell: |
+     mkdir -p $HOME/.kube
+     sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+     sudo chown $(id -u):$(id -g) $HOME/.kube/config
+    when: contentstatus.stdout == "2"

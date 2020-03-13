@@ -1,0 +1,16 @@
+---
+- hosts: master1
+  become: yes
+
+  vars_files:
+    - ../../env_variables.yml
+
+  tasks:
+
+    - name: Configure master keepalived
+      template:
+        src=conf/master-keepalived.conf
+        dest=/etc/keepalived/keepalived.conf
+
+
+

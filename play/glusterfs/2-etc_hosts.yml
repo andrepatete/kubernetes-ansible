@@ -1,0 +1,9 @@
+---
+- hosts: [ masters, agents]
+  become: yes
+
+  tasks:
+  - name: Generate /etc/hosts file
+    template:
+      src=etc/hosts.j2
+      dest=/etc/hosts

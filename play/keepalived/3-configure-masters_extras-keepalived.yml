@@ -1,0 +1,14 @@
+---
+- hosts: masters_extras
+  become: yes
+
+  vars_files:
+    - ../../env_variables.yml
+
+  tasks:
+
+    - name: Configure slave keepalived
+      template:
+        src=conf/slave-keepalived.conf
+        dest=/etc/keepalived/keepalived.conf
+  

@@ -1,0 +1,16 @@
+---
+- hosts: masters
+  become: yes
+
+  tasks:
+
+    - name: Configure peers
+      command: "gluster peer probe agent-4"
+      register: mymotd
+      ignore_errors: yes
+
+    - name: Configure Gluster volume.
+      command: "/sbin/gluster --mode=script volume add-brick volume1 replica 5  agent-4:/gluster/volume1" 
+      register: mymotd
+      ignore_errors: yes
+

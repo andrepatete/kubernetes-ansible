@@ -1,0 +1,22 @@
+---
+
+# Install system utilities 
+- include: 'install-system-utilities.yml'
+
+# Install Glusterfs
+- include: 'glusterfs/1-install_gluster.yml'
+- include: 'glusterfs/2-etc_hosts.yml'
+- include: 'glusterfs/3-configure_glusterfs_volumes.yml'
+- include: 'glusterfs/4-mount_filesystem_glusterfs.yml'
+
+# Install Keepalived
+- include: 'keepalived/1-instalation-keepalived.yml'
+- include: 'keepalived/2-configure-master1-keepalived.yml'
+- include: 'keepalived/3-configure-masters_extras-keepalived.yml'
+- include: 'keepalived/4-start-keepalived.yml'
+
+# Install Kubernetes
+- include: 'kubernetes/1-kubernetes-requirements.yml'
+- include: 'kubernetes/2-configure-first_master_node.yml'
+- include: 'kubernetes/3-add_masters_nodes.yml'
+- include: 'kubernetes/4-add_worker_nodes.yml'

@@ -1,0 +1,118 @@
+---
+- hosts: [ masters, agents]
+  become: yes
+
+  tasks:
+
+# Disabling SWAP
+  - name: Disabling Swap on all nodes
+    shell: swapoff -a
+
+  - name: Commenting Swap entries in /etc/fstab
+    replace:
+     path: /etc/fstab
+     regexp: '(.*swap*)'
+     replace: '#\1'
+
+# Installs docker
+  - name: Install device-mapper-persistent-data
+    yum:
+      name: device-mapper-persistent-data
+      state: latest
+
+  - name: Install lvm2
+    yum:
+      name: lvm2
+      state: latest
+
+  - name: Add Docker repo
+    get_url:
+      url: https://download.docker.com/linux/centos/docker-ce.repo
+      dest: /etc/yum.repos.d/docer-ce.repo
+    become: yes
+
+  - name: Enable Docker Edge repo
+    ini_file:
+      dest: /etc/yum.repos.d/docer-ce.repo
+      section: 'docker-ce-edge'
+      option: enabled
+      value: 0
+    become: yes
+
+  - name: Enable Docker Test repo
+    ini_file:
+      dest: /etc/yum.repos.d/docer-ce.repo
+      section: 'docker-ce-test'
+      option: enabled
+      value: 0
+    become: yes
+
+  - name: Install Docker
+    package:
+      name: docker-ce
+      state: latest
+    become: yes
+
+  - name: Start Docker service
+    service:
+      name: docker
+      state: started
+      enabled: yes
+    become: yes
+
+# Ensure iptables tooling does not use the nftables backend
+  - name: Garante que o iptables não use nftables backend
+    shell: "update-alternatives --set iptables /usr/sbin/iptables-legacy"
+    ignore_errors: yes
+
+# Installing kubeadm and kubelet 
+  - name: Create repo file Kubernetes
+    file:
+      path: /etc/yum.repos.d/kubernetes.repo
+      state: touch
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Adding repository details in Kubernetes repo file.
+    blockinfile:
+     path: /etc/yum.repos.d/kubernetes.repo
+     block: |
+      [kubernetes]
+      name=Kubernetes
+      baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+      enabled=1
+      gpgcheck=1
+      repo_gpgcheck=1
+      gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg        
+
+  - name: Install kubeadm and kubelet
+    yum:
+      name: ['kubelet', 'kubeadm', 'kubectl']
+      state: latest
+
+  - name: Starting and enabling the kubelet service
+    service:
+      name: kubelet
+      state: started
+      enabled: yes
+
+# Ensure net.bridge.bridge-nf-call-iptables is set to 1    
+  - name: Create file k8s.conf
+    file:
+      path: /etc/sysctl.d/k8s.conf
+      state: touch
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Ensure net.bridge.bridge-nf-call-iptables is set to 1
+    blockinfile:
+     path: /etc/sysctl.d/k8s.conf
+     block: |
+      net.bridge.bridge-nf-call-ip6tables = 1
+      net.bridge.bridge-nf-call-iptables = 1
+
+  - name: Reload net.bridge.bridge-nf-call-iptables
+    command: "sysctl --system"
+

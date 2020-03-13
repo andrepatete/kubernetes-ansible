@@ -1,0 +1,24 @@
+---
+all:
+  children:
+    master1:
+      hosts:
+        # IP Addresses for the Master Nodes
+        10.55.55.225:
+    masters:
+      hosts:
+        # IP Addresses for the Master Nodes
+        10.55.55.225:
+        10.55.55.226:
+        10.55.55.248:
+    masters_extras:
+      hosts:
+        # IP Addresses for the Master Nodes
+        10.55.55.226:
+        10.55.55.248:
+    agents:
+      hosts:
+        # IP Addresses for the Agent Nodes
+        10.55.55.235:
+        10.55.55.229:
+        10.55.55.239:

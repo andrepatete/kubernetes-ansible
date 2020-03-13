@@ -1,0 +1,8 @@
+---
+- hosts: [ master1, agents]
+  become: yes
+
+  tasks:
+
+    - name: Mount filesystem glusterfs
+      mount: name=/data src={{ansible_nodename}}:volume10 fstype=glusterfs state=mounted

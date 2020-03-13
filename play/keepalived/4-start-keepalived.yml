@@ -1,0 +1,14 @@
+---
+- hosts: masters
+  become: yes
+
+  vars_files:
+    - ../../env_variables.yml
+
+  tasks:
+
+    - name: Starting and Enabling the required services
+      service:
+        name: keepalived
+        state: started
+        enabled: yes

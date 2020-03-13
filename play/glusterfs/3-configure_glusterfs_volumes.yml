@@ -1,0 +1,30 @@
+---
+- hosts: master1
+  become: yes
+
+  tasks:
+
+    - name: Configure peers
+      command: "gluster peer probe agent1"
+      register: mymotd
+      ignore_errors: yes
+
+    - name: Configure peers2
+      command: "gluster peer probe agent2"
+      register: mymotd
+      ignore_errors: yes
+
+    - name: Configure peers3
+      command: "gluster peer probe agent3"
+      register: mymotd
+      ignore_errors: yes
+
+    - name: Configure Gluster volume.
+      command: "/sbin/gluster --mode=script volume create volume10 replica 4 transport tcp master1:/gluster/volume10 agent1:/gluster/volume10 agent2:/gluster/volume10 agent3:/gluster/volume10" 
+      register: mymotd
+      ignore_errors: yes
+
+    - name: Start Gluster volume.
+      command: "gluster vol start volume10"
+      register: mymotd
+      ignore_errors: yes

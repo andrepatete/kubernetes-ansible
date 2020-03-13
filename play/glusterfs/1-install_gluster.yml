@@ -1,0 +1,101 @@
+---
+- hosts: [master1, agents]
+  become: yes
+
+  vars:
+    config_lvm: true
+    create: true
+    create_vgname: vg_gluster
+    create_lvname: lv_gluster
+    create_lvsize: 100%FREE
+    new_disk: /dev/sdb
+    filesystem: xfs
+    gluster_mount_dir: /mnt/gluster
+    gluster_mount_brick_dir: /gluster/volume1
+    gluster_brick_dir: "/brick01"
+    gluster_brick_name: gluster
+
+  tasks:
+
+    - name: Create Directory /data
+      command: "mkdir -p /data"
+      register: mymotd
+      ignore_errors: yes
+
+    - name: Create Directory /gluster
+      command: "mkdir -p /gluster"
+      register: mymotd
+      ignore_errors: yes
+
+    - name: installing system-storage-manager
+      yum: name=system-storage-manager state=present
+      when: config_lvm and ansible_os_family == "RedHat"
+
+    - name: installing lvm2
+      yum: name=lvm2 state=present
+      when: config_lvm and ansible_os_family == "RedHat"
+
+    - name: installing sg3_utils
+      yum: name=sg3_utils state=present
+      when: config_lvm and ansible_os_family == "RedHat"
+
+    - name: creating new LVM volume group
+      lvg: vg=vg_gluster pvs=/dev/sdb state=present
+      when: create and config_lvm
+
+    - name: checking if we need to create logical volume
+      shell: lvs | grep -c
+      ignore_errors: yes
+      register: lv_result
+      when: create and config_lvm
+
+    - name: creating new LVM logical volume
+      lvol: vg=vg_gluster lv=lv_gluster size=126g
+      when: create and config_lvm and lv_result.stdout|int == 0
+
+    - name: creating new filesystem on new LVM logical volume
+      filesystem: fstype=xfs dev=/dev/vg_gluster/lv_gluster
+      when: create and config_lvm
+
+    - name: Install glusterfs repository
+      yum:
+        name: "centos-release-gluster"
+        state: present
+
+    - name: Install glusterfs
+      yum:
+        name: "{{ item.package }}"
+        state: present
+      with_items:
+        - {package: "glusterfs"}
+        - {package: "glusterfs-cli"}
+        - {package: "glusterfs-libs"}
+        - {package: "glusterfs-server"}
+        - {package: "glusterfs-fuse"}
+        - {package: "glusterfs-geo-replication"}
+
+    - name: Make sure glusterfs service is running
+      systemd:
+        name: glusterd
+        state: started
+        enabled: yes
+
+    - name: Ensure Gluster mount client and brick directories exist.
+      file: "path=/gluster state=directory mode=0775"
+      with_items:
+        - ""
+        - ""
+
+    - name: mounting new filesystem
+      mount: name=/gluster src=/dev/vg_gluster/lv_gluster fstype=xfs state=mounted
+      when: create and config_lvm
+
+    - name: Ensure Gluster brick directory exist.
+      file: "path=/gluster state=directory mode=0775"
+      with_items:
+        - ""
+
+    - name: Create Directory /gluster/volume1
+      command: "mkdir -p /gluster/volume10"
+      register: mymotd
+      ignore_errors: yes
