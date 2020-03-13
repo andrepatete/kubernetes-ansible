@@ -353,3 +353,9 @@ Roadmap
  Review README.md
  Add VMs in cluster
 
+# Roadmaps
+
+  - [X] Review configure firewall - /play/install-system-utilities.yaml
+  - [X] Review GlusterFS "Creating Pool" and "Creating the volumes" - /play/glusterfs/3-configure_glusterfs_volumes.yaml
+  - [X] Review README.md
+  - [X] Add VMs in cluster
